@@ -1,0 +1,268 @@
+export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
+export interface ApiErrorPayload {
+  ok: false;
+  error: string;
+  code: string;
+  request_id?: string;
+}
+
+export interface ApiSuccessPayload<T> {
+  ok: true;
+  data: T;
+  request_id?: string;
+}
+
+export interface CustomDocumentMetadata {
+  document_id: string;
+  title: string;
+  speaker: string;
+  date: string;
+  url: string;
+  word_count: number;
+  organization: string;
+  doc_type: string;
+  source_filename: string;
+  source_format: string;
+  source_local_path: string;
+  source_gcs_path: string;
+  tags: string;
+  source_kind: string;
+  source_family: string;
+  source_index_url: string;
+  published_date: string;
+  updated_date: string;
+  last_reviewed_or_updated: string;
+  notice_type?: string;
+  notice_number?: string;
+  notice_title?: string;
+  notice_url?: string;
+  file_number?: string;
+  release_numbers?: string[];
+  rule_type?: string;
+  sec_issue_date?: string;
+  federal_register_publish_date?: string;
+  source_notice_url?: string;
+  comment_url?: string;
+  comments_url?: string;
+  commenter_name?: string;
+  commenter_org?: string;
+  letter_type?: string;
+  effective_date?: string;
+  comment_deadline?: string;
+  pdf_url?: string;
+  discovery_source?: string;
+  input_url?: string;
+  docket_id?: string;
+  docket_url?: string;
+  document_url?: string;
+  rule_url?: string;
+  comment_id?: string;
+  comment_page_url?: string;
+  resolved_content_url?: string;
+  attachment_urls?: string[];
+  extraction_mode?: string;
+  extraction_warnings?: string[];
+  summary?: string;
+}
+
+export interface CustomDocumentContent {
+  full_text: string;
+  paragraphs: string[];
+  sentences: string[];
+}
+
+export interface CustomDocumentRecord {
+  metadata: CustomDocumentMetadata;
+  content: CustomDocumentContent;
+  validation?: Record<string, JsonValue>;
+}
+
+export interface CustomDocumentsPayload {
+  updated_at: string;
+  documents: CustomDocumentRecord[];
+}
+
+export interface EnrichmentReviewPayload {
+  decision: string;
+  notes: string;
+  reviewed_at: string;
+}
+
+export interface EnrichmentPayload {
+  summary: string;
+  tags: string[];
+  keywords: string[];
+  entities: string[];
+  stance: Record<string, JsonValue>;
+  comment_position: Record<string, JsonValue>;
+  evidence_spans: Array<Record<string, JsonValue>>;
+  confidence: number;
+}
+
+export interface EnrichmentEntry {
+  doc_id: string;
+  organization: string;
+  org_key: string;
+  title: string;
+  speaker: string;
+  date: string;
+  url: string;
+  doc_type: string;
+  word_count: number;
+  status: string;
+  error: string;
+  model: string;
+  pipeline_version: string;
+  updated_at: string;
+  enrichment: EnrichmentPayload;
+  review: EnrichmentReviewPayload;
+  reward?: Record<string, JsonValue>;
+  auto_review?: Record<string, JsonValue>;
+}
+
+export interface EnrichmentStatePayload {
+  version: number;
+  pipeline_version: string;
+  updated_at: string;
+  entries: Record<string, EnrichmentEntry>;
+}
+
+export interface NewsConnectorSettingsPayload {
+  updated_at: string;
+  query: string;
+  lookback_days: number;
+  max_pages: number;
+  page_size: number;
+  target_count: number;
+  sort_by: string;
+  organization_label: string;
+  domains: string;
+  exclude_domains: string;
+  tags_csv: string;
+  doj_usao_exclude_terms: string;
+}
+
+export interface DocumentListItem {
+  document_id: string;
+  title: string;
+  organization: string;
+  source_kind: string;
+  doc_type: string;
+  speaker: string;
+  url: string;
+  date: string;
+  published_at: string;
+  word_count: number;
+  tags: string[];
+  keywords: string[];
+  topics: string[];
+  ingest_status: string;
+  enrichment_status: string;
+  review_decision: string;
+  updated_at: string;
+}
+
+export interface DocumentsFacets {
+  sources: string[];
+  organizations: string[];
+  topics: string[];
+  key_topics: string[];
+  keywords: string[];
+  statuses: string[];
+}
+
+export interface DocumentsListResponseData {
+  items: DocumentListItem[];
+  page: number;
+  page_size: number;
+  total: number;
+  facets: DocumentsFacets;
+}
+
+export interface TimelineBucketSourceCount {
+  source_kind: string;
+  count: number;
+}
+
+export interface TimelineBucket {
+  key: string;
+  label: string;
+  start: string;
+  end: string;
+  count: number;
+  source_counts: TimelineBucketSourceCount[];
+}
+
+export interface TimelineSummary {
+  matching_documents: number;
+  dated_documents: number;
+  undated_documents: number;
+  bucket_count: number;
+  peak_bucket_key: string;
+  peak_bucket_label: string;
+  peak_bucket_count: number;
+  start_date: string;
+  end_date: string;
+}
+
+export interface TimelineResponseData {
+  grain: "month" | "quarter" | "year";
+  buckets: TimelineBucket[];
+  totals: TimelineSummary;
+  facets: DocumentsFacets;
+}
+
+export type GraphNodeKind = "document" | "organization" | "speaker" | "topic" | "keyword" | "entity";
+
+export type GraphEdgeKind =
+  | "published_by"
+  | "spoken_by"
+  | "has_topic"
+  | "has_keyword"
+  | "mentions_entity"
+  | "org_topic"
+  | "org_keyword"
+  | "org_entity"
+  | "speaker_topic"
+  | "topic_entity";
+
+export interface GraphNode {
+  id: string;
+  kind: GraphNodeKind;
+  label: string;
+  document_count: number;
+  degree: number;
+  metadata: Record<string, JsonValue>;
+}
+
+export interface GraphEdge {
+  id: string;
+  kind: GraphEdgeKind;
+  source: string;
+  target: string;
+  weight: number;
+  document_count: number;
+  evidence_doc_ids: string[];
+  metadata: Record<string, JsonValue>;
+}
+
+export interface GraphSummary {
+  matching_documents: number;
+  node_count: number;
+  edge_count: number;
+  returned_nodes: number;
+  returned_edges: number;
+  include_documents: boolean;
+  nodes_by_kind: Record<string, number>;
+  edges_by_kind: Record<string, number>;
+  start_date: string;
+  end_date: string;
+}
+
+export interface GraphResponseData {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  summary: GraphSummary;
+  facets: DocumentsFacets;
+}
